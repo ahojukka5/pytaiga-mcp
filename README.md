@@ -67,22 +67,18 @@ cp .env.docker .env
 # 3. Run with Docker Compose
 docker-compose up -d
 
-# Or use the helper script
-./scripts/docker.sh start -d
-
 # The server is now running on http://localhost:8000
 ```
 
-**Helper Script Commands:**
+**Common Docker Compose Commands:**
 
 ```bash
-./scripts/docker.sh build      # Build the image
-./scripts/docker.sh start      # Start in foreground
-./scripts/docker.sh start -d   # Start in background
-./scripts/docker.sh stop       # Stop the server
-./scripts/docker.sh logs -f    # Follow logs
-./scripts/docker.sh status     # Check status
-./scripts/docker.sh help       # Show all commands
+docker-compose up              # Start in foreground
+docker-compose up -d           # Start in background (detached)
+docker-compose down            # Stop the server
+docker-compose logs -f         # Follow logs
+docker-compose ps              # Check status
+docker-compose restart         # Restart the server
 ```
 
 That's it! The MCP server is now accessible via SSE at `http://localhost:8000`.
@@ -169,20 +165,14 @@ cd pytaiga-mcp
 
 # Install dependencies with Poetry
 poetry install
-
-# Or use the installation script
-./scripts/install.sh
 ```
 
 ### Development Installation
 
-For development (includes testing and code quality tools):
+For development (includes all dependencies and tools):
 
 ```bash
 poetry install
-
-# Or use the script
-./scripts/install.sh --dev
 ```
 
 ### Manual Installation
@@ -248,24 +238,18 @@ LOG_LEVEL=DEBUG
 
    ```bash
    docker-compose up -d
-   # Or use the helper script:
-   ./scripts/docker.sh start -d
    ```
 
 4. **View logs:**
 
    ```bash
    docker-compose logs -f taiga-mcp
-   # Or:
-   ./scripts/docker.sh logs -f
    ```
 
 5. **Stop the server:**
 
    ```bash
    docker-compose down
-   # Or:
-   ./scripts/docker.sh stop
    ```
 
 #### Using Docker CLI
@@ -812,10 +796,9 @@ pytaiga-mcp/
 │   ├── user_guide/        # End-user documentation
 │   └── developer_guide/   # Contributor documentation
 ├── scripts/               # Utility scripts
-│   ├── install.sh         # Installation script
 │   ├── run.sh             # Server execution script
 │   ├── quality.sh         # Code quality checks
-│   └── docker.sh          # Docker helper script
+│   └── inspect.sh         # Debugging and inspection tool
 ├── examples/              # Example configurations and usage
 ├── pyproject.toml         # Poetry configuration and dependencies
 └── README.md              # Project overview

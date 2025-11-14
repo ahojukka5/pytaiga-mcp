@@ -89,6 +89,7 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -99,6 +100,7 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 - `ci`: CI/CD changes
 
 **Examples:**
+
 ```
 feat(auth): add support for application tokens
 
@@ -123,6 +125,7 @@ Fixes #123
 ### Submitting Your PR
 
 1. **Push your changes** to your fork:
+
    ```bash
    git push origin feature/your-feature-name
    ```
