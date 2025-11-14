@@ -49,63 +49,43 @@ Comprehensive documentation is available in the [docs/](docs/) directory:
 
 For the full documentation site, see [docs/index.md](docs/index.md).
 
-## �🚀 Quick Start
+## 🚀 Quick Start
 
-### 🐳 Docker (Fastest Way!)
-
-**Get up and running in 1 minute:**
+**Get started in 3 commands:**
 
 ```bash
-# 1. Clone the repository
+# 1. Clone and install
 git clone https://github.com/ahojukka5/pytaiga-mcp.git
 cd pytaiga-mcp
+poetry install
 
-# 2. Configure (optional - set your Taiga URL)
-cp .env.docker .env
-# Edit .env and add your TAIGA_API_URL and optionally TAIGA_AUTH_TOKEN
+# 2. Run the server
+poetry run pytaiga-mcp
 
-# 3. Run with Docker Compose
-docker-compose up -d
-
-# The server is now running on http://localhost:8000
+# That's it! The server is now running.
 ```
 
-**Common Docker Compose Commands:**
+For authentication and configuration, see the [Quick Start Guide](docs/user_guide/quickstart_simple.md).
+
+### 🐳 Docker (Alternative)
+
+If you prefer Docker:
+
+```bash
+# Using Docker Compose
+cp .env.docker .env  # Configure your settings
+docker-compose up -d
+```
+
+**Common Docker Compose commands:**
 
 ```bash
 docker-compose up              # Start in foreground
-docker-compose up -d           # Start in background (detached)
+docker-compose up -d           # Start in background
 docker-compose down            # Stop the server
 docker-compose logs -f         # Follow logs
 docker-compose ps              # Check status
-docker-compose restart         # Restart the server
 ```
-
-That's it! The MCP server is now accessible via SSE at `http://localhost:8000`.
-
-**Alternative - Using Docker directly:**
-
-```bash
-# Build the image
-docker build -t taiga-mcp .
-
-# Run the container
-docker run -d \
-  -p 8000:8000 \
-  -e TAIGA_API_URL=https://api.taiga.io \
-  --name taiga-mcp-server \
-  taiga-mcp
-```
-
-### 📦 Local Installation
-
-**Want to get started in 2 minutes?** See the [Quick Start Guide](docs/user_guide/quickstart_simple.md) for the fastest way to authenticate:
-
-1. Get an Application Token from Taiga (User Settings → Applications)
-2. Add to `.env` file
-3. Done! No passwords needed.
-
-For comprehensive installation instructions, see the [Installation Guide](docs/user_guide/installation.md).
 
 ## Features
 
@@ -364,18 +344,13 @@ Paste the following json in your Claude App's or Cursor's mcp settings section:
 ```json
 {
     "mcpServers": {
-        "taigaApi": {
+        "taiga": {
             "command": "poetry",
-            "args": [
-                "run",
-                "python",
-                "-m",
-                "pytaiga_mcp.server"
-            ],
-            "cwd": "<path to local pytaiga-mcp folder>",
+            "args": ["run", "pytaiga-mcp"],
+            "cwd": "/path/to/pytaiga-mcp",
             "env": {
-                "TAIGA_TRANSPORT": "stdio",                
-                "TAIGA_API_URL": "<Taiga API Url (ex: http://localhost:9000)"
+                "TAIGA_TRANSPORT": "stdio",
+                "TAIGA_API_URL": "https://api.taiga.io"
             }
         }
     }
@@ -384,9 +359,16 @@ Paste the following json in your Claude App's or Cursor's mcp settings section:
 
 ### Running the Server
 
-   ```bash
-   poetry run python -m pytaiga_mcp.server
-   ```
+```bash
+# Simple command
+poetry run pytaiga-mcp
+
+# Or with full module path
+poetry run python -m pytaiga_mcp.server
+
+# With options
+poetry run pytaiga-mcp --help
+```
 
 ### Transport Modes
 
@@ -422,7 +404,7 @@ The server supports two MCP transport protocols for communication between the se
   "mcpServers": {
     "taiga": {
       "command": "poetry",
-      "args": ["run", "python", "-m", "pytaiga_mcp.server"],
+      "args": ["run", "pytaiga-mcp"],
       "cwd": "/path/to/pytaiga-mcp",
       "env": {"TAIGA_TRANSPORT": "stdio"}
     }
@@ -468,7 +450,7 @@ The server supports two MCP transport protocols for communication between the se
   "mcpServers": {
     "taiga": {
       "command": "poetry",
-      "args": ["run", "python", "-m", "pytaiga_mcp.server", "--sse"],
+      "args": ["run", "pytaiga-mcp", "--transport", "sse"],
       "cwd": "/path/to/pytaiga-mcp",
       "env": {"TAIGA_TRANSPORT": "sse"}
     }
@@ -496,8 +478,8 @@ You can configure the transport mode in several ways:
 1. **Command-line flag:**
 
    ```bash
-   poetry run python -m pytaiga_mcp.server --transport stdio  # Default
-   poetry run python -m pytaiga_mcp.server --transport sse    # SSE mode
+   poetry run pytaiga-mcp --transport stdio  # Default
+   poetry run pytaiga-mcp --transport sse    # SSE mode
    
    # Or use the convenience script:
    ./scripts/run.sh
@@ -507,7 +489,7 @@ You can configure the transport mode in several ways:
 
    ```bash
    export TAIGA_TRANSPORT=stdio  # or 'sse'
-   poetry run python -m pytaiga_mcp.server
+   poetry run pytaiga-mcp
    ```
 
 3. **In .env file:**
