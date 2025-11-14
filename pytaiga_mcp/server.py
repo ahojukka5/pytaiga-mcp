@@ -18,9 +18,6 @@ into domain-specific modules:
 All functions are imported and the MCP server instance is ready to run.
 """
 
-# Import all tools and the MCP instance from the server package
-from pytaiga_mcp.server import *  # noqa: F401, F403
-
 
 def main():
     """
@@ -31,21 +28,66 @@ def main():
     - Python module: python -m pytaiga_mcp.server
     - Direct execution: python server.py
     """
-    from pytaiga_mcp.cli import handle_login_command, parse_args
+    import os
+    import sys
 
-    # Parse CLI arguments
+    from pytaiga_mcp.cli import handle_login_command, parse_args, print_startup_info
+    from pytaiga_mcp.logging_config import get_logger, setup_logging
+
+    # Parse CLI arguments FIRST to check for login command
     args = parse_args()
 
-    # Handle login command
+    # Handle login command - exit early before initializing the server
     if args.command == "login":
-        import sys
-
         sys.exit(handle_login_command(args))
 
-    # Run the server
-    from pytaiga_mcp.server import mcp
+    # Set FastMCP environment variables BEFORE importing server modules
+    if args.transport == "sse":
+        os.environ["FASTMCP_HOST"] = args.host
+        os.environ["FASTMCP_PORT"] = str(args.port)
 
-    mcp.run()
+    # Setup logging
+    setup_logging(
+        log_level=args.log_level,
+        log_file=args.log_file,
+        log_to_console=not args.quiet,
+        max_bytes=args.log_max_bytes,
+        backup_count=args.log_backup_count,
+    )
+
+    # Get logger
+    logger = get_logger(__name__)
+
+    # Print startup info
+    print_startup_info(args)
+
+    # Log startup
+    logger.info("=" * 50)
+    logger.info("Taiga MCP Bridge starting")
+    logger.info(f"Transport: {args.transport}")
+    if args.transport == "sse":
+        logger.info(f"Server address: http://{args.host}:{args.port}")
+    logger.info(f"Log level: {args.log_level}")
+    logger.info("=" * 50)
+
+    # Run the server with appropriate transport
+    try:
+        # Import mcp here after env vars are set
+        from pytaiga_mcp.server.common import mcp
+
+        if args.transport == "sse":
+            logger.info(f"Starting SSE server on {args.host}:{args.port}")
+            mcp.run(transport="sse")
+        else:
+            # stdio transport (default)
+            logger.info("Starting stdio transport")
+            logger.debug("Listening on stdin/stdout")
+            mcp.run(transport="stdio")
+    except KeyboardInterrupt:
+        logger.info("Server stopped by user (Ctrl+C)")
+    except Exception as e:
+        logger.error(f"Server error: {e}", exc_info=True)
+        raise
 
 
 if __name__ == "__main__":
