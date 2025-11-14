@@ -73,6 +73,11 @@ The `login` command will:
 - Authenticate with Taiga and get an auth token
 - Create a `.env` file with your configuration
 
+### Alternative: OAuth Authentication (Coming Soon)
+
+OAuth authentication with GitHub/GitLab will be added in a future release,
+allowing you to authenticate via your browser without entering credentials.
+
 ### Alternative: Manual Setup
 
 If you prefer, you can manually create `.env`:
