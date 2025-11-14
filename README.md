@@ -51,7 +51,7 @@ For the full documentation site, see [docs/index.md](docs/index.md).
 
 ## 🚀 Quick Start
 
-**Get started in 3 commands:**
+**Get started in 4 steps:**
 
 ```bash
 # 1. Clone and install
@@ -59,13 +59,24 @@ git clone https://github.com/ahojukka5/pytaiga-mcp.git
 cd pytaiga-mcp
 poetry install
 
-# 2. Run the server
-poetry run pytaiga-mcp
+# 2. Configure authentication
+cp .env.example .env
+# Edit .env and add your Taiga credentials:
+#   TAIGA_API_URL=https://api.taiga.io
+#   TAIGA_AUTH_TOKEN=your_application_token_here
 
-# That's it! The server is now running.
+# 3. Run the server
+poetry run pytaiga-mcp
 ```
 
-For authentication and configuration, see the [Quick Start Guide](docs/user_guide/quickstart_simple.md).
+**Getting your authentication token:**
+
+1. Log into your Taiga instance
+2. Go to **User Settings → Applications**
+3. Click **"Create new application"**
+4. Copy the generated token and paste it in `.env`
+
+For detailed authentication options, see the [Quick Start Guide](docs/user_guide/quickstart_simple.md).
 
 ### 🐳 Docker (Alternative)
 
