@@ -1,0 +1,56 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+    branches: [ master, main, develop ]
+
+jobs:
+  quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: latest
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+    
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+    
+    - name: Install dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry install --no-interaction --no-root
+    
+    - name: Install project
+      run: poetry install --no-interaction
+    
+    - name: Run Black (check only)
+      run: poetry run black --check pytaiga_mcp/ tests/
+    
+    - name: Run isort (check only)
+      run: poetry run isort --check-only pytaiga_mcp/ tests/
+    
+    - name: Run Ruff
+      run: poetry run ruff check pytaiga_mcp/ tests/
+    
+    - name: Run mypy
+      run: poetry run mypy pytaiga_mcp/
+    
+    - name: Run flake8
+      run: poetry run flake8 pytaiga_mcp/ tests/ --max-line-length=100 --extend-ignore=E203,W503
