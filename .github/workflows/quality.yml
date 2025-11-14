@@ -53,4 +53,4 @@ jobs:
       run: poetry run mypy pytaiga_mcp/
     
     - name: Run flake8
-      run: poetry run flake8 pytaiga_mcp/ tests/ --max-line-length=100 --extend-ignore=E203,W503
+      run: poetry run flake8 pytaiga_mcp/ tests/
