@@ -38,7 +38,18 @@ By using the MCP standard, this bridge allows AI systems to maintain contextual
 awareness about project state and perform complex project management tasks
 programmatically.
 
-## 🚀 Quick Start
+## � Documentation
+
+Comprehensive documentation is available in the [docs/](docs/) directory:
+
+- **[User Guide](docs/user_guide/)** - Installation, configuration, and usage guides
+- **[Developer Guide](docs/developer_guide/)** - Architecture, API references, and contribution guidelines
+- **[Quick Start (Simple)](docs/user_guide/quickstart_simple.md)** - Get started in 2 minutes
+- **[Quick Start (Detailed)](docs/user_guide/quickstart.md)** - Comprehensive setup guide
+
+For the full documentation site, see [docs/index.md](docs/index.md).
+
+## �🚀 Quick Start
 
 ### 🐳 Docker (Fastest Way!)
 
@@ -92,11 +103,13 @@ docker run -d \
 
 ### 📦 Local Installation
 
-**Want to get started in 2 minutes?** See [QUICKSTART.md](QUICKSTART.md) for the fastest way to authenticate:
+**Want to get started in 2 minutes?** See the [Quick Start Guide](docs/user_guide/quickstart_simple.md) for the fastest way to authenticate:
 
 1. Get an Application Token from Taiga (User Settings → Applications)
 2. Add to `.env` file
 3. Done! No passwords needed.
+
+For comprehensive installation instructions, see the [Installation Guide](docs/user_guide/installation.md).
 
 ## Features
 
@@ -136,7 +149,7 @@ docker run -d \
 - Reference-based lookups (get by ref #)
 - Assignment and reassignment of work items
 
-**API Coverage**: This implementation covers 100% of the core Taiga API operations needed for project management workflows. See [API_COVERAGE_ANALYSIS.md](API_COVERAGE_ANALYSIS.md) for detailed endpoint coverage information.
+**API Coverage**: This implementation covers 100% of the core Taiga API operations needed for project management workflows.
 
 ## Installation
 
@@ -521,6 +534,8 @@ You can configure the transport mode in several ways:
 
 **💡 Tip:** If you're not sure which to use, start with **stdio** - it's simpler and works with most MCP clients out of the box.
 
+For more details, see the [Transport Modes Guide](docs/user_guide/transport.md).
+
 ### Authentication Flow
 
 This MCP bridge uses a session-based authentication model with **secure token-based authentication**.
@@ -598,7 +613,11 @@ session_id = session["session_id"]
 client.call_tool("save_session_token", {"session_id": session_id})
 ```
 
-2. **Using Tools and Resources**: Include the `session_id` in every API call:
+#### Using the Session
+
+Once authenticated, follow these steps:
+
+1. **Using Tools and Resources**: Include the `session_id` in every API call:
 
    ```python
    # For resources, include session_id in the URI
@@ -615,14 +634,14 @@ client.call_tool("save_session_token", {"session_id": session_id})
    })
    ```
 
-3. **Check Session Status**: You can check if your session is still valid:
+2. **Check Session Status**: You can check if your session is still valid:
 
    ```python
    status = client.call_tool("session_status", {"session_id": session_id})
    # Returns information about session validity and remaining time
    ```
 
-4. **Logout**: When finished, you can logout to terminate the session:
+3. **Logout**: When finished, you can logout to terminate the session:
 
    ```python
    client.call_tool("logout", {"session_id": session_id})
@@ -771,52 +790,57 @@ If a token is compromised:
    - Production token
    - CI/CD token
 
-See [TOKEN_AUTH_GUIDE.md](TOKEN_AUTH_GUIDE.md) for detailed authentication documentation.
+See the [Authentication Guide](docs/user_guide/authentication.md) and [Token Authentication Guide](docs/user_guide/token_authentication.md) for detailed authentication documentation.
 
 ## Development
 
 ### Project Structure
 
 ```
-pyTaigaMCP/
-├── src/
-│   ├── server.py          # MCP server implementation with tools
+pytaiga-mcp/
+├── pytaiga_mcp/           # Main package
+│   ├── server.py          # MCP server implementation
 │   ├── taiga_client.py    # Taiga API client with all CRUD operations
-│   ├── tools.py           # MCP tools definitions
-│   └── config.py          # Configuration settings with Pydantic
-├── tests/
+│   ├── cli.py             # Command-line interface
+│   ├── logging_config.py  # Logging configuration
+│   └── server/            # Server modules (auth, projects, tasks, etc.)
+├── tests/                 # Test suite
 │   ├── conftest.py        # Shared pytest fixtures
-│   ├── unit/              # Unit tests
-│   └── integration/       # Integration tests
-├── scripts/
+│   ├── test_*.py          # Test modules
+│   └── README.md          # Testing documentation
+├── docs/                  # Documentation
+│   ├── user_guide/        # End-user documentation
+│   └── developer_guide/   # Contributor documentation
+├── scripts/               # Utility scripts
 │   ├── install.sh         # Installation script
 │   ├── run.sh             # Server execution script
+│   ├── quality.sh         # Code quality checks
 │   └── docker.sh          # Docker helper script
-├── pyproject.toml         # Project configuration and dependencies
-└── README.md              # Project documentation
+├── examples/              # Example configurations and usage
+├── pyproject.toml         # Poetry configuration and dependencies
+└── README.md              # Project overview
 ```
+
+For detailed documentation, see the [Documentation](docs/) directory.
 
 ### Testing
 
 Run tests with pytest:
 
 ```bash
-# Run all tests
-pytest
+# Run all tests with coverage
+pytest --cov=pytaiga_mcp
 
-# Run only unit tests
-pytest tests/unit/
+# Run specific test markers
+pytest -m "auth"     # Authentication tests
+pytest -m "core"     # Core functionality tests
 
-# Run only integration tests
-pytest tests/integration/
-
-# Run tests with specific markers
-pytest -m "auth"  # Authentication tests
-pytest -m "core"  # Core functionality tests
-
-# Run tests with coverage reporting
-pytest --cov=src
+# Use helper scripts
+./scripts/run_unit_tests.sh        # Unit tests only
+./scripts/run_integration_tests.sh # Integration tests
 ```
+
+See [tests/README.md](tests/README.md) for detailed testing documentation.
 
 ### Code Quality
 
@@ -879,16 +903,15 @@ The bridge implements several performance optimizations:
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Install development dependencies (`./install.sh --dev`)
-4. Make your changes
-5. Run tests (`pytest`)
-6. Commit your changes (`git commit -m 'Add some amazing feature'`)
-7. Push to the branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
+- Development setup (Poetry, code quality tools)
+- Commit message format (conventional commits)
+- Pull request process and CI expectations
+- Code quality standards
+- Testing requirements
+
+For technical documentation, see the [Developer Guide](docs/developer_guide/).
 
 ## License
 
