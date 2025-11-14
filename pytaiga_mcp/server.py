@@ -31,6 +31,18 @@ def main():
     - Python module: python -m pytaiga_mcp.server
     - Direct execution: python server.py
     """
+    from pytaiga_mcp.cli import handle_login_command, parse_args
+
+    # Parse CLI arguments
+    args = parse_args()
+
+    # Handle login command
+    if args.command == "login":
+        import sys
+
+        sys.exit(handle_login_command(args))
+
+    # Run the server
     from pytaiga_mcp.server import mcp
 
     mcp.run()

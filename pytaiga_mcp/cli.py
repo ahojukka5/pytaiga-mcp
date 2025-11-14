@@ -2,6 +2,7 @@
 Command-line interface for Taiga MCP Server.
 
 Provides a rich CLI with options for:
+- Authentication setup (login command)
 - Transport mode (stdio/sse)
 - Port configuration
 - Logging levels and output
@@ -17,8 +18,6 @@ def create_parser() -> argparse.ArgumentParser:
     """
     Create the argument parser for the Taiga MCP server.
 
-    Similar to python -m http.server but for MCP protocol.
-
     Returns:
         Configured ArgumentParser instance
     """
@@ -26,13 +25,25 @@ def create_parser() -> argparse.ArgumentParser:
         prog="pytaiga-mcp",
         description="Taiga MCP Bridge - Model Context Protocol server for Taiga",
         epilog="Examples:\n"
+        "  %(prog)s login                    # Interactive login to create .env\n"
         "  %(prog)s                          # Start with stdio (default)\n"
         "  %(prog)s --transport sse          # Start SSE server on port 8000\n"
         "  %(prog)s --transport sse --port 5000  # Custom port\n"
-        "  %(prog)s --log-level DEBUG        # Debug logging to console\n"
-        "  %(prog)s --log-file server.log    # Log to file\n"
-        "  %(prog)s --log-level DEBUG --log-file logs/debug.log --quiet  # Debug to file only\n",
+        "  %(prog)s --log-level DEBUG        # Debug logging to console\n",
         formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+
+    # Subcommands
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    # Login command
+    login_parser = subparsers.add_parser(
+        "login", help="Interactive login to generate .env file with authentication token"
+    )
+    login_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite existing .env file without prompting",
     )
 
     # Transport options
@@ -218,5 +229,42 @@ def parse_args(argv: list | None = None) -> argparse.Namespace:
     """
     parser = create_parser()
     args = parser.parse_args(argv)
+
+    # Handle login command separately (no validation needed)
+    if args.command == "login":
+        return args
+
     validate_args(args)
     return args
+
+
+def handle_login_command(args: argparse.Namespace) -> int:
+    """
+    Handle the login command.
+
+    Args:
+        args: Parsed arguments
+
+    Returns:
+        Exit code (0 for success, 1 for failure)
+    """
+    from pytaiga_mcp.auth_setup import interactive_login
+
+    # Check if .env exists
+    env_path = Path(".env")
+    if env_path.exists() and not args.force:
+        print(f"Warning: {env_path.absolute()} already exists!")
+        response = input("Overwrite? (y/N): ").strip().lower()
+        if response != "y":
+            print("Cancelled.")
+            return 0
+
+    try:
+        interactive_login()
+        return 0
+    except KeyboardInterrupt:
+        print("\n\nCancelled by user.")
+        return 130
+    except Exception as e:
+        print(f"\nUnexpected error: {e}", file=sys.stderr)
+        return 1

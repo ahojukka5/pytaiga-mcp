@@ -51,7 +51,7 @@ For the full documentation site, see [docs/index.md](docs/index.md).
 
 ## 🚀 Quick Start
 
-**Get started in 4 steps:**
+**Get started in 3 steps:**
 
 ```bash
 # 1. Clone and install
@@ -59,22 +59,40 @@ git clone https://github.com/ahojukka5/pytaiga-mcp.git
 cd pytaiga-mcp
 poetry install
 
-# 2. Configure authentication
-cp .env.example .env
-# Edit .env and add your Taiga credentials:
-#   TAIGA_API_URL=https://api.taiga.io
-#   TAIGA_AUTH_TOKEN=your_application_token_here
+# 2. Login to generate .env file (interactive)
+poetry run pytaiga-mcp login
 
 # 3. Run the server
 poetry run pytaiga-mcp
 ```
 
-**Getting your authentication token:**
+The `login` command will:
+
+- Prompt for your Taiga URL (e.g., `https://api.taiga.io`)
+- Ask for your username and password
+- Authenticate with Taiga and get an auth token
+- Create a `.env` file with your configuration
+
+### Alternative: Manual Setup
+
+If you prefer, you can manually create `.env`:
+
+```bash
+cp .env.example .env
+# Edit .env and add your credentials
+```
+
+### Getting an Application Token (Recommended for Production)
 
 1. Log into your Taiga instance
 2. Go to **User Settings → Applications**
 3. Click **"Create new application"**
-4. Copy the generated token and paste it in `.env`
+4. Copy the generated token and add to `.env`:
+
+   ```bash
+   TAIGA_AUTH_TOKEN=your_application_token_here
+   TAIGA_TOKEN_TYPE=Application
+   ```
 
 For detailed authentication options, see the [Quick Start Guide](docs/user_guide/quickstart_simple.md).
 
