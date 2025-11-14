@@ -20,6 +20,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from dotenv import load_dotenv
+
 from pytaiga_mcp.server.auth import login_with_token
 from pytaiga_mcp.server.projects import list_projects
 
@@ -92,7 +93,7 @@ def main():
         result = login_with_token(host=host, auth_token=auth_token, token_type=token_type)
 
         session_id = result["session_id"]
-        print(f"✅ Authentication successful!")
+        print("✅ Authentication successful!")
         print(f"   Session ID: {session_id}")
 
         # Test: List projects

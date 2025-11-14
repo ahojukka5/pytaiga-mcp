@@ -5,14 +5,14 @@ Demonstrates the recommended way to authenticate with Taiga MCP server.
 """
 
 import os
+
 from pytaiga_mcp.server.auth import (
+    list_cached_tokens_tool,
     login,
     login_from_cache,
-    save_session_token,
     login_with_token,
-    list_cached_tokens_tool,
-    delete_cached_token,
     logout,
+    save_session_token,
 )
 
 
@@ -45,7 +45,7 @@ def example_first_time_setup():
     save_result = save_session_token(session_id)
 
     if save_result["status"] == "success":
-        print(f"✅ Token saved successfully!")
+        print("✅ Token saved successfully!")
         print(f"   Cache location: {save_result.get('cache_location', 'N/A')}")
         print(f"   User ID: {save_result.get('user_id')}")
     else:

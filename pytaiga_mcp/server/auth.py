@@ -434,7 +434,7 @@ def health_check(session_id: str) -> dict[str, Any]:
                 health_status["details"] = "API client not initialized"
                 return health_status
 
-            user_info = wrapper.api.users.get_me()
+            wrapper.api.users.get_me()  # Check API accessibility
             health_status["api_accessible"] = True
             health_status["status"] = "healthy"
             health_status["details"] = "All systems operational"
