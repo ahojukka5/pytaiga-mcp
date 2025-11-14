@@ -1,8 +1,17 @@
-import pytest
-import uuid
 import time
-import src.server
-from src.server import login, list_projects, update_project, get_project, list_user_stories, create_user_story
+import uuid
+
+import pytest
+
+import pytaiga_mcp.server
+from pytaiga_mcp.server import (
+    create_user_story,
+    get_project,
+    list_projects,
+    list_user_stories,
+    login,
+    update_project,
+)
 
 # Test constants - use a real Taiga test instance!
 TEST_HOST = "http://localhost:9000"
@@ -81,6 +90,6 @@ class TestTaigaIntegration:
         finally:
             # Clean up - normally we would delete the story, but there's no delete_user_story
             # So we'll update it to mark it as a test that can be ignored/deleted manually
-            update_user_story = getattr(src.server, "update_user_story", None)
+            update_user_story = getattr(pytaiga_mcp.server, "update_user_story", None)
             if update_user_story:
                 update_user_story(session_id, story_id, subject=f"[TEST - CAN DELETE] {subject}")
