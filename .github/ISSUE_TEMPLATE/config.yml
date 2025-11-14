@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: GitHub Discussions
+    url: https://github.com/ahojukka5/pytaiga-mcp/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: Security Issue
+    url: https://github.com/ahojukka5/pytaiga-mcp/security/advisories/new
+    about: Report a security vulnerability (private)
+  - name: Documentation
+    url: https://talhaorak.github.io/pytaiga-mcp
+    about: Read the full documentation
