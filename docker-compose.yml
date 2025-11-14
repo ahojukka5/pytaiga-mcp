@@ -1,0 +1,46 @@
+# Docker Compose configuration for Taiga MCP Bridge
+version: '3.8'
+
+services:
+  taiga-mcp:
+    build: .
+    container_name: taiga-mcp-server
+    ports:
+      - "8000:8000"
+    environment:
+      # Taiga API Configuration
+      - TAIGA_API_URL=${TAIGA_API_URL:-https://api.taiga.io}
+      
+      # Server Configuration
+      - TAIGA_TRANSPORT=sse
+      - FASTMCP_HOST=0.0.0.0
+      - FASTMCP_PORT=8000
+      
+      # Logging Configuration
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LOG_FILE=/app/logs/taiga-mcp.log
+      
+      # Optional: Pre-configured authentication token
+      # - TAIGA_AUTH_TOKEN=${TAIGA_AUTH_TOKEN}
+      # - TAIGA_TOKEN_TYPE=Application
+    
+    volumes:
+      # Mount logs directory for persistence
+      - ./logs:/app/logs
+      
+      # Optional: Mount .env file for configuration
+      # - ./.env:/app/.env:ro
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# Optional: Add volume for persistent cache
+volumes:
+  taiga-mcp-logs:
+    driver: local
