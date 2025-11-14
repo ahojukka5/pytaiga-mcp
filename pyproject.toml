@@ -10,7 +10,7 @@ readme = "README.md"
 packages = [{include = "pytaiga_mcp"}]
 
 [tool.poetry.scripts]
-pytaiga-mcp = "pytaiga_mcp.server:main"
+pytaiga-mcp = "pytaiga_mcp.main:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"

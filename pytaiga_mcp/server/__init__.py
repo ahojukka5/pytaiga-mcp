@@ -141,13 +141,15 @@ from .wiki import (
 
 def main():
     """
-    Main entry point for the Taiga MCP server.
+    Main entry point for the Taiga MCP server (server-only).
+
+    Note: This is called by pytaiga_mcp.main after login command handling.
+    For CLI usage, use the 'pytaiga-mcp' command instead of calling this directly.
 
     This function can be called via:
-    - Command line: pytaiga-mcp
-    - Python module: python -m pytaiga_mcp.server
+    - Python module: python -m pytaiga_mcp.server (for development)
 
-    Supports comprehensive CLI options:
+    Supports comprehensive options:
     - Transport modes (stdio/sse)
     - Port and host configuration
     - Logging levels and file output
@@ -162,11 +164,12 @@ def main():
         pytaiga-mcp -v --log-file debug.log  # Verbose file logging
     """
     import os
+    import sys
 
     from pytaiga_mcp.cli import parse_args, print_startup_info
     from pytaiga_mcp.logging_config import get_logger, setup_logging
 
-    # Parse command-line arguments FIRST (before any other imports)
+    # Parse command-line arguments
     args = parse_args()
 
     # Set FastMCP environment variables BEFORE importing server modules
