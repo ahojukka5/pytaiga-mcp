@@ -159,7 +159,7 @@ echo ""
 
 # 5. flake8 - Style checking
 echo -e "${YELLOW}[5/5] Running flake8 (style checking)...${NC}"
-if poetry run flake8 pytaiga_mcp/ tests/ --max-line-length=100 --extend-ignore=E203,W503; then
+if poetry run flake8 pytaiga_mcp/ tests/; then
     echo -e "${GREEN}✓ Style checking passed${NC}"
 else
     echo -e "${RED}✗ Style checking issues found${NC}"
