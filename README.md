@@ -11,7 +11,7 @@
 [![Test Coverage](https://img.shields.io/badge/coverage-99%25-brightgreen.svg)](https://github.com/ahojukka5/pytaiga-mcp)
 
 > **Note on Origins**: This project was originally forked from
-> [ahojukka5/pytaiga-mcp](https://github.com/ahojukka5/pytaiga-mcp). However, it
+> [talhaorak/pytaiga-mcp](https://github.com/talhaorak/pytaiga-mcp). However, it
 > has undergone extensive refactoring and rewriting to the point where it now
 > functions as an independent project. We are grateful to the original authors
 > for their foundational work, which provided the inspiration and starting point
