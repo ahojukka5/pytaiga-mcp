@@ -19,12 +19,12 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 Instead, please report them via:
 
 1. **GitHub Security Advisories** (Recommended)
-   - Go to https://github.com/ahojukka5/pytaiga-mcp/security/advisories
+   - Go to <https://github.com/ahojukka5/pytaiga-mcp/security/advisories>
    - Click "Report a vulnerability"
    - Provide detailed information about the vulnerability
 
 2. **Email**
-   - Send details to: ahojukka5@gmail.com
+   - Send details to: <ahojukka5@gmail.com>
    - Use subject line: "[SECURITY] Taiga MCP Bridge Vulnerability Report"
 
 ### What to Include
@@ -55,7 +55,7 @@ After submitting a vulnerability report:
 1. **Acknowledgment**: We'll confirm receipt within 48 hours
 2. **Assessment**: We'll evaluate the severity and impact
 3. **Updates**: Regular status updates during investigation
-4. **Resolution**: 
+4. **Resolution**:
    - If accepted: We'll work on a fix and coordinate disclosure
    - If declined: We'll explain why it's not considered a vulnerability
 5. **Credit**: Security researchers will be credited (unless anonymity is requested)
