@@ -38,6 +38,171 @@ By using the MCP standard, this bridge allows AI systems to maintain contextual
 awareness about project state and perform complex project management tasks
 programmatically.
 
+## 🔌 How It Works: One Server, All Your Projects
+
+**Key Concept**: The Taiga MCP Bridge acts as a **single connection point** to your entire Taiga account. Once authenticated, you can work with **all your projects** through one running server instance.
+
+### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Your Taiga Account                        │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+│  │ Project 1│  │ Project 2│  │ Project 3│  │ Project N│   │
+│  │ JuliaFEM │  │ OpenPFC  │  │pytaiga-  │  │   ...    │   │
+│  │          │  │          │  │   mcp    │  │          │   │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
+└─────────────────────────────────────────────────────────────┘
+                            ▲
+                            │ Single Authentication
+                            │ (via .env credentials)
+                            │
+                    ┌───────┴────────┐
+                    │  MCP Server    │
+                    │  (pytaiga-mcp) │
+                    └───────┬────────┘
+                            │
+                            │ MCP Protocol
+                            │
+                    ┌───────▼────────┐
+                    │   MCP Client   │
+                    │ (Claude, AI,   │
+                    │  your tools)   │
+                    └────────────────┘
+```
+
+### How to Work with Multiple Projects
+
+1. **Start the server once** with your credentials:
+
+   ```bash
+   poetry run pytaiga-mcp login  # Only needed once
+   poetry run pytaiga-mcp         # Start server
+   ```
+
+2. **The server exposes tools** that work across all your projects:
+
+   - `taiga_list_projects` - See all projects you have access to
+   - `taiga_get_project` - Get details of any project by ID or slug
+   - `taiga_list_user_stories` - List user stories from any project
+   - `taiga_create_task` - Create tasks in any project
+   - `taiga_update_wiki` - Update wiki pages in any project
+   - ... and many more (100+ tools available)
+
+3. **Each tool accepts a `project_id`** parameter to specify which project to work with:
+
+   ```python
+   # Example: Work with different projects
+   
+   # List all your projects first
+   projects = list_projects()
+   # Returns: [
+   #   {"id": 123, "name": "JuliaFEM", "slug": "ahojukka5-juliafem"},
+   #   {"id": 456, "name": "OpenPFC", "slug": "ahojukka5-openpfc"},
+   #   {"id": 789, "name": "pytaiga-mcp", "slug": "ahojukka5-pytaiga-mcp"}
+   # ]
+   
+   # Work with JuliaFEM project
+   create_task(project_id=123, subject="Fix bug in solver", ...)
+   
+   # Work with OpenPFC project  
+   create_user_story(project_id=456, subject="Implement new feature", ...)
+   
+   # Work with pytaiga-mcp project
+   update_wiki(project_id=789, slug="home", content="Updated docs", ...)
+   ```
+
+### Key Benefits
+
+- ✅ **Single authentication** - Log in once, access everything
+- ✅ **No switching contexts** - Work with multiple projects in same session
+- ✅ **Consistent API** - Same tools work across all projects
+- ✅ **Full permissions** - You have the same access as in Taiga's web interface
+- ✅ **Real-time** - Changes appear immediately in Taiga
+
+### Common Workflows
+
+**Workflow 1: Cross-Project Status Check**
+
+```python
+# Get all your projects
+projects = list_projects()
+
+# Check open issues in each project
+for project in projects:
+    issues = list_issues(project_id=project["id"], status="open")
+    print(f"{project['name']}: {len(issues)} open issues")
+```
+
+**Workflow 2: Batch Updates**
+
+```python
+# Update documentation across multiple projects
+projects = ["juliafem", "openpfc", "pytaiga-mcp"]
+
+for project_slug in projects:
+    project = get_project(slug=project_slug)
+    update_wiki(
+        project_id=project["id"],
+        slug="changelog",
+        content="## November 2025 Updates\n..."
+    )
+```
+
+**Workflow 3: Project Templates**
+
+```python
+# Create similar tasks in multiple projects
+template_task = {
+    "subject": "Security audit Q4 2025",
+    "description": "Complete security review",
+    "tags": ["security", "audit"]
+}
+
+for project in list_projects():
+    create_task(project_id=project["id"], **template_task)
+```
+
+### Sessions and Filtering
+
+The server manages your Taiga session automatically. When you use tools:
+
+- **Projects**: By default, tools show only projects where you're a member
+- **Filtering**: Use `member=<user_id>` to filter by specific user
+- **Private projects**: You only see projects you have access to
+- **Permissions**: You can only perform actions you're allowed to in Taiga
+
+### Example: Complete Multi-Project Usage
+
+```python
+# 1. Start by listing your projects
+all_projects = taiga_list_projects()
+print(f"You have access to {len(all_projects)} projects")
+
+# 2. Find a specific project
+my_project = taiga_get_project(slug="ahojukka5-pytaiga-mcp")
+
+# 3. Work with that project's resources
+user_stories = taiga_list_user_stories(project_id=my_project["id"])
+tasks = taiga_list_tasks(project_id=my_project["id"])
+wiki_pages = taiga_list_wiki_pages(project_id=my_project["id"])
+
+# 4. Switch to another project seamlessly
+another_project = taiga_get_project(slug="ahojukka5-juliafem")
+issues = taiga_list_issues(project_id=another_project["id"])
+
+# 5. Create items in different projects
+taiga_create_task(
+    project_id=my_project["id"],
+    subject="Update documentation"
+)
+
+taiga_create_issue(
+    project_id=another_project["id"],
+    subject="Bug in module X"
+)
+```
+
 ## � Documentation
 
 Comprehensive documentation is available in the [docs/](docs/) directory:
