@@ -58,15 +58,14 @@ def create_issue(
     if not subject:
         raise ValueError("Issue subject cannot be empty.")
     try:
-        issue = api.issues.create(
-            project=project_id,
-            subject=subject,
-            priority_id=priority_id,
-            status_id=status_id,
-            type_id=type_id,
-            severity_id=severity_id,
+        data = {
+            "priority": priority_id,
+            "status": status_id,
+            "type": type_id,
+            "severity": severity_id,
             **extra_fields,
-        )
+        }
+        issue = api.issues.create(project=project_id, subject=subject, data=data)
         logger.info(f"Issue '{subject}' created successfully (ID: {issue.get('id', 'N/A')}).")
         return issue
     except TaigaException as e:
@@ -129,7 +128,7 @@ def delete_issue(session_id: str, issue_id: int) -> dict[str, Any]:
     logger.warning(f"Executing delete_issue ID {issue_id} for session {session_id[:8]}...")
     api = get_api_client(session_id)
     try:
-        api.issues.delete(id=issue_id)
+        api.issues.delete(issue_id)
         logger.info(f"Issue {issue_id} deleted successfully.")
         return {"status": "deleted", "issue_id": issue_id}
     except TaigaException as e:
