@@ -1,10 +1,6 @@
-<p align="center">
-<picture>
-  <img src="https://taiga.io/media/images/favicon.width-44.png">
-</picture>
-</p>
-
 # Taiga MCP Bridge
+
+![Taiga MCP Bridge Hero](docs/assets/images/hero.webp)
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
@@ -37,6 +33,138 @@ This bridge provides a comprehensive set of tools and resources for AI agents to
 By using the MCP standard, this bridge allows AI systems to maintain contextual
 awareness about project state and perform complex project management tasks
 programmatically.
+
+## 🚀 Quick Start
+
+### The Easy Way (Recommended)
+
+**For Claude Desktop** - Works perfectly, zero hassle:
+
+```bash
+# 1. Install
+git clone https://github.com/ahojukka5/pytaiga-mcp.git
+cd pytaiga-mcp
+poetry install
+
+# 2. Login (creates .env with your token)
+poetry run pytaiga-mcp login
+
+# 3. Configure Claude Desktop
+# Edit: ~/.config/Claude/claude_desktop_config.json
+```
+
+Add this to your Claude config:
+
+```json
+{
+  "mcpServers": {
+    "taiga": {
+      "command": "poetry",
+      "args": ["run", "pytaiga-mcp"],
+      "cwd": "/absolute/path/to/pytaiga-mcp"
+    }
+  }
+}
+```
+
+**That's it!** Restart Claude and say: "List my Taiga projects"
+
+### For VS Code + GitHub Copilot
+
+**⚠️ IMPORTANT**: The experience is different from Claude Desktop. Here's what you need to know:
+
+#### What You DON'T Need to Do
+
+- ❌ **Don't manually start the server** - The MCP extension does this automatically
+- ❌ **Don't use `--transport sse`** - VS Code uses stdio by default
+- ❌ **Don't worry about port 8000** - No network port needed
+
+#### What You DO Need to Do
+
+**1. Install the MCP extension:**
+
+```bash
+code --install-extension automatalabs.copilot-mcp
+```
+
+**2. Create `.vscode/mcp.json` in your project root:**
+
+```json
+{
+  "servers": {
+    "taiga": {
+      "command": "/absolute/path/to/.cache/pypoetry/virtualenvs/pytaiga-mcp-xxxxx/bin/pytaiga-mcp",
+      "args": [],
+      "type": "stdio"
+    }
+  }
+}
+```
+
+**Finding your Poetry virtualenv path:**
+
+```bash
+poetry env info --path
+# Returns something like: /home/user/.cache/pypoetry/virtualenvs/pytaiga-mcp-Bk-FoCB_-py3.13
+# Use: /home/user/.cache/pypoetry/virtualenvs/pytaiga-mcp-Bk-FoCB_-py3.13/bin/pytaiga-mcp
+```
+
+**3. Authenticate (one-time):**
+
+```bash
+poetry run pytaiga-mcp login  # Creates .env with token
+```
+
+**4. Reload VS Code:**
+
+Press `Ctrl+Shift+P` → "Developer: Reload Window"
+
+**5. Test it:**
+
+The extension automatically starts the MCP server. Ask Copilot: "List my Taiga projects"
+
+#### How It Works Under the Hood
+
+```text
+VS Code loads → Reads .vscode/mcp.json → Spawns pytaiga-mcp process
+                                        → Communicates via stdio (no ports!)
+                                        → You can now use MCP tools
+```
+
+**Key Differences from Claude:**
+
+- Claude: One config file for all MCP servers (global)
+- VS Code: One `.vscode/mcp.json` per workspace (local)
+- Both: Use stdio transport (process pipes), not network
+
+#### Troubleshooting
+
+##### No MCP tools available
+
+```bash
+# 1. Check extension is installed
+code --list-extensions | grep copilot-mcp
+
+# 2. Check .vscode/mcp.json exists and has correct path
+cat .vscode/mcp.json
+
+# 3. Reload window
+# Ctrl+Shift+P → "Developer: Reload Window"
+```
+
+##### Authentication failed
+
+```bash
+# Make sure .env exists with valid token
+poetry run pytaiga-mcp login
+cat .env | grep TAIGA_AUTH_TOKEN
+```
+
+### Need Help?
+
+- **Detailed guide:** [docs/user_guide/getting_started.md](docs/user_guide/getting_started.md)
+- **Troubleshooting:** See the getting started guide
+- **Authentication issues:** [docs/user_guide/token_auth_guide.md](docs/user_guide/token_auth_guide.md)
 
 ## 🔌 How It Works: One Server, All Your Projects
 
@@ -122,7 +250,7 @@ programmatically.
 
 ### Common Workflows
 
-**Workflow 1: Cross-Project Status Check**
+#### Workflow 1: Cross-Project Status Check
 
 ```python
 # Get all your projects
@@ -134,7 +262,7 @@ for project in projects:
     print(f"{project['name']}: {len(issues)} open issues")
 ```
 
-**Workflow 2: Batch Updates**
+#### Workflow 2: Batch Updates
 
 ```python
 # Update documentation across multiple projects
@@ -149,7 +277,7 @@ for project_slug in projects:
     )
 ```
 
-**Workflow 3: Project Templates**
+#### Workflow 3: Project Templates
 
 ```python
 # Create similar tasks in multiple projects
@@ -214,29 +342,7 @@ Comprehensive documentation is available in the [docs/](docs/) directory:
 
 For the full documentation site, see [docs/index.md](docs/index.md).
 
-## 🚀 Quick Start
-
-**Get started in 3 steps:**
-
-```bash
-# 1. Clone and install
-git clone https://github.com/ahojukka5/pytaiga-mcp.git
-cd pytaiga-mcp
-poetry install
-
-# 2. Login to generate .env file (interactive)
-poetry run pytaiga-mcp login
-
-# 3. Run the server
-poetry run pytaiga-mcp
-```
-
-The `login` command will:
-
-- Prompt for your Taiga URL (e.g., `https://api.taiga.io`)
-- Ask for your username and password
-- Authenticate with Taiga and get an auth token
-- Create a `.env` file with your configuration
+## � Additional Setup Options
 
 ### GitHub OAuth Authentication
 
@@ -263,7 +369,7 @@ This will:
   3. Configure your Taiga instance with the GitHub OAuth app credentials
   4. See [Taiga documentation](https://docs.taiga.io/setup-production.html#github-oauth) for details
 
-### Alternative: OAuth Authentication (Coming Soon)
+### Alternative OAuth Providers (Coming Soon)
 
 Additional OAuth providers (GitLab, etc.) will be added in future releases.
 
