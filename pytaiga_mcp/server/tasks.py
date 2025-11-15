@@ -92,7 +92,7 @@ def update_task(
 
         current_task = api.tasks.get(task_id)
         version = current_task.get("version")
-        if not version:
+        if version is None:
             raise ValueError(f"Could not retrieve version for task {task_id}.")
 
         updated_task = api.tasks.edit(task_id=task_id, version=version, data=extra_fields)

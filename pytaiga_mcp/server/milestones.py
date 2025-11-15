@@ -98,7 +98,7 @@ def update_milestone(
 
         current_milestone = api.milestones.get(milestone_id)
         version = current_milestone.get("version")
-        if not version:
+        if version is None:
             raise ValueError(f"Could not retrieve version for milestone {milestone_id}.")
 
         updated_milestone = api.milestones.edit(

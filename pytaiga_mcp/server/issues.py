@@ -108,7 +108,7 @@ def update_issue(
 
         current_issue = api.issues.get(issue_id)
         version = current_issue.get("version")
-        if not version:
+        if version is None:
             raise ValueError(f"Could not retrieve version for issue {issue_id}.")
 
         updated_issue = api.issues.edit(issue_id=issue_id, version=version, **extra_fields)

@@ -100,7 +100,7 @@ def update_user_story(
 
         current_story = api.user_stories.get(user_story_id)
         version = current_story.get("version")
-        if not version:
+        if version is None:
             raise ValueError(f"Could not retrieve version for user story {user_story_id}.")
 
         updated_story = api.user_stories.edit(

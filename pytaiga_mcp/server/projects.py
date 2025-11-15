@@ -143,7 +143,7 @@ def update_project(
 
         current_project = api.projects.get(project_id=project_id)
         version = current_project.get("version")
-        if not version:
+        if version is None:
             raise ValueError(f"Could not retrieve version for project {project_id}.")
 
         updated_project = api.projects.update(

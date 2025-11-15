@@ -89,7 +89,7 @@ def update_epic(
 
         current_epic = api.epics.get(epic_id)
         version = current_epic.get("version")
-        if not version:
+        if version is None:
             raise ValueError(f"Could not retrieve version for epic {epic_id}.")
 
         updated_epic = api.epics.edit(epic_id=epic_id, version=version, **extra_fields)
