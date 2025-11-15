@@ -23,7 +23,7 @@ def list_issues(session_id: str, project_id: int, filters: str = "{}") -> list[d
         import json
 
         filter_dict = json.loads(filters) if filters else {}
-        issues = api.issues.list(project_id=project_id, **filter_dict)
+        issues = api.issues.list(project=project_id, **filter_dict)
         return issues
     except TaigaException as e:
         logger.error(
@@ -171,7 +171,7 @@ def get_issue_statuses(session_id: str, project_id: int) -> list[dict[str, Any]]
     )
     api = get_api_client(session_id)
     try:
-        statuses = api.issue_statuses.list(project_id=project_id)
+        statuses = api.issue_statuses.list(project=project_id)
         return statuses
     except TaigaException as e:
         logger.error(
@@ -196,7 +196,7 @@ def get_issue_priorities(session_id: str, project_id: int) -> list[dict[str, Any
     )
     api = get_api_client(session_id)
     try:
-        priorities = api.issue_priorities.list(project_id=project_id)
+        priorities = api.issue_priorities.list(project=project_id)
         return priorities
     except TaigaException as e:
         logger.error(
@@ -223,7 +223,7 @@ def get_issue_severities(session_id: str, project_id: int) -> list[dict[str, Any
     )
     api = get_api_client(session_id)
     try:
-        severities = api.issue_severities.list(project_id=project_id)
+        severities = api.issue_severities.list(project=project_id)
         return severities
     except TaigaException as e:
         logger.error(
@@ -247,7 +247,7 @@ def get_issue_types(session_id: str, project_id: int) -> list[dict[str, Any]]:
     logger.info(f"Executing get_issue_types for project {project_id}, session {session_id[:8]}...")
     api = get_api_client(session_id)
     try:
-        types = api.issue_types.list(project_id=project_id)
+        types = api.issue_types.list(project=project_id)
         return types
     except TaigaException as e:
         logger.error(
