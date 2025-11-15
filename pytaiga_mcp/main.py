@@ -11,7 +11,7 @@ import sys
 def main():
     """
     Main entry point that routes to either login or server.
-    
+
     This function MUST be called before importing pytaiga_mcp.server
     because that package initializes FastMCP at import time.
     """

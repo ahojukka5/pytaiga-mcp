@@ -73,10 +73,34 @@ The `login` command will:
 - Authenticate with Taiga and get an auth token
 - Create a `.env` file with your configuration
 
+### GitHub OAuth Authentication
+
+Authenticate using your GitHub account:
+
+```bash
+poetry run pytaiga-mcp login --github
+```
+
+This will:
+
+1. Prompt for your Taiga instance URL
+2. Ask for the GitHub OAuth Client ID (configured for your Taiga instance)
+3. Open a browser for GitHub authorization
+4. Exchange the GitHub code for a Taiga auth token
+5. Create a `.env` file with your configuration
+
+**Requirements for GitHub OAuth:**
+
+- For **api.taiga.io**: Use the pre-configured GitHub OAuth app (contact Taiga support if needed)
+- For **self-hosted Taiga**:
+  1. Create a GitHub OAuth app at <https://github.com/settings/developers>
+  2. Set Authorization callback URL to: `http://localhost:8765/callback`
+  3. Configure your Taiga instance with the GitHub OAuth app credentials
+  4. See [Taiga documentation](https://docs.taiga.io/setup-production.html#github-oauth) for details
+
 ### Alternative: OAuth Authentication (Coming Soon)
 
-OAuth authentication with GitHub/GitLab will be added in a future release,
-allowing you to authenticate via your browser without entering credentials.
+Additional OAuth providers (GitLab, etc.) will be added in future releases.
 
 ### Alternative: Manual Setup
 

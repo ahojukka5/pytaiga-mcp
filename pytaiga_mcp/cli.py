@@ -45,6 +45,11 @@ def create_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Overwrite existing .env file without prompting",
     )
+    login_parser.add_argument(
+        "--github",
+        action="store_true",
+        help="Use GitHub OAuth authentication instead of username/password",
+    )
 
     # Transport options
     parser.add_argument(
@@ -248,7 +253,7 @@ def handle_login_command(args: argparse.Namespace) -> int:
     Returns:
         Exit code (0 for success, 1 for failure)
     """
-    from pytaiga_mcp.auth_setup import interactive_login
+    from pathlib import Path
 
     # Check if .env exists
     env_path = Path(".env")
@@ -260,7 +265,32 @@ def handle_login_command(args: argparse.Namespace) -> int:
             return 0
 
     try:
-        interactive_login()
+        # Use GitHub OAuth if --github flag is provided
+        if hasattr(args, "github") and args.github:
+            from pytaiga_mcp.github_auth import github_oauth_flow
+
+            # Ask for Taiga instance URL
+            print("=" * 70)
+            print("Taiga MCP Bridge - GitHub Authentication")
+            print("=" * 70)
+            print()
+            print("Enter your Taiga instance URL:")
+            print("  Examples:")
+            print("    - https://api.taiga.io (for cloud)")
+            print("    - http://localhost:9000 (for local)")
+            api_url = input("Taiga URL: ").strip()
+
+            if not api_url:
+                print("\nError: URL is required", file=sys.stderr)
+                return 1
+
+            github_oauth_flow(api_url, env_path)
+        else:
+            # Use traditional username/password login
+            from pytaiga_mcp.auth_setup import interactive_login
+
+            interactive_login()
+
         return 0
     except KeyboardInterrupt:
         print("\n\nCancelled by user.")
