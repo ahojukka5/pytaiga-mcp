@@ -12,33 +12,19 @@
 
 Taiga MCP Bridge is a production-ready [Model Context Protocol](https://modelcontextprotocol.io) server that enables AI assistants and automation tools to interact with [Taiga](https://taiga.io), an open-source project management platform. It provides a comprehensive set of tools for managing projects, tasks, user stories, issues, epics, milestones, and wiki pages.
 
-## Documentation Structure
+## 📖 Documentation Structure
 
-### 📘 [User Guide](user_guide/README.md)
+### � [Getting Started](user_guide/getting_started.md)
 
-**For end users** - Learn how to install, configure, and use Taiga MCP Bridge:
+Quick start guide to get up and running in minutes.
 
-- [Installation Guide](user_guide/installation.md) - Setup instructions
-- [Quick Start (Simple)](user_guide/quickstart_simple.md) - Get started in 2 minutes
-- [Quick Start (Detailed)](user_guide/quickstart.md) - Comprehensive guide
-- [Authentication](user_guide/authentication.md) - Authentication methods and security
-- [Token Authentication](user_guide/token_authentication.md) - Using application tokens
-- [Transport Modes](user_guide/transport.md) - stdio vs SSE transport
+### � [User Guide](user_guide/README.md)
+
+Complete guide for end users and integrators.
 
 ### 🔧 [Developer Guide](developer_guide/README.md)
 
-**For contributors and developers** - Technical documentation and API references:
-
-- [Architecture Overview](developer_guide/architecture.md) - System design and modules
-- [Auth Module](developer_guide/auth_module.md) - Authentication implementation
-- [Taiga Client](developer_guide/taiga_client.md) - Client wrapper details
-- [MCP SDK Reference](developer_guide/mcp_sdk_reference.md) - MCP Python SDK docs
-- [Taiga REST API](developer_guide/taiga_rest_api_reference.md) - Taiga API reference
-- [API Documentation](developer_guide/api/index.md) - Auto-generated API docs
-
-### 📋 [Project Management](project_management/README.md)
-
-**Internal documentation** - Development tracking and historical records (not relevant for users/contributors)
+Technical documentation for contributors and developers.
 
 ## Key Features
 
