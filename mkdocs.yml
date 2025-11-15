@@ -1,7 +1,7 @@
 site_name: Taiga MCP Bridge
 site_description: Model Context Protocol server for Taiga project management
 site_author: Taiga MCP Contributors
-site_url: https://talhaorak.github.io/pytaiga-mcp
+site_url: https://ahojukka5.github.io/pytaiga-mcp
 
 repo_name: ahojukka5/pytaiga-mcp
 repo_url: https://github.com/ahojukka5/pytaiga-mcp
@@ -80,7 +80,9 @@ nav:
   - Home: index.md
   - User Guide:
       - Overview: user_guide/README.md
+      - Getting Started: user_guide/getting_started.md
       - Installation: user_guide/installation.md
+      - Client Connection: user_guide/client_connection.md
       - Quick Start (Simple): user_guide/quickstart_simple.md
       - Quick Start (Detailed): user_guide/quickstart.md
       - Authentication: user_guide/authentication.md
@@ -89,6 +91,7 @@ nav:
   - Developer Guide:
       - Overview: developer_guide/README.md
       - Architecture: developer_guide/architecture.md
+      - User Story Best Practices: developer_guide/user_story_best_practices.md
       - Auth Module: developer_guide/auth_module.md
       - Taiga Client: developer_guide/taiga_client.md
       - MCP SDK Reference: developer_guide/mcp_sdk_reference.md
