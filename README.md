@@ -5,6 +5,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Test Coverage](https://img.shields.io/badge/coverage-99%25-brightgreen.svg)](https://github.com/ahojukka5/pytaiga-mcp)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://ahojukka5.github.io/pytaiga-mcp/)
 
 > **Note on Origins**: This project was originally forked from
 > [talhaorak/pytaiga-mcp](https://github.com/talhaorak/pytaiga-mcp). However, it
