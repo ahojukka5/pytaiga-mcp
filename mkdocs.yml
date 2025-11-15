@@ -99,7 +99,6 @@ nav:
       - API Docs: developer_guide/api/index.md
   - Community:
       - Contributing: CONTRIBUTING.md
-      - Code of Conduct: CODE_OF_CONDUCT.md
       - Security: SECURITY.md
 
 extra:
