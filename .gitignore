@@ -188,3 +188,6 @@ docs/archive/
 # Temporary test files
 *_test.py
 temp_*.py
+
+# Taiga content staging (upload to Taiga, don't commit)
+.taiga-content/
