@@ -351,3 +351,62 @@ def github_oauth_flow(api_url: str, env_path: Path) -> None:
     except Exception as e:
         print(f"\n✗ Unexpected error: {e}", file=sys.stderr)
         sys.exit(1)
+
+
+def github_oauth_to_cache(host: str) -> tuple[str, int] | None:
+    """
+    GitHub OAuth flow that returns token for caching.
+
+    Args:
+        host: Taiga host URL
+
+    Returns:
+        Tuple of (auth_token, user_id) or None if failed
+    """
+    print("=" * 70)
+    print("Taiga MCP Bridge - GitHub Authentication")
+    print("=" * 70)
+    print()
+    print(f"Host: {host}")
+    print()
+    print("This will authenticate you with Taiga using your GitHub account.")
+    print()
+
+    # Get authorization code
+    try:
+        github_code = get_github_auth_code()
+        print("\n✓ GitHub authorization received")
+    except Exception as e:
+        print(f"\n✗ GitHub authorization failed: {e}", file=sys.stderr)
+        return None
+
+    # Exchange code for Taiga token
+    print("Authenticating with Taiga...")
+
+    try:
+        auth_data = login_with_github(host, github_code)
+        auth_token = auth_data.get("auth_token")
+        user_id = auth_data.get("id")
+
+        if not auth_token:
+            print("\n✗ No auth token received from Taiga", file=sys.stderr)
+            return None
+
+        print("\n✓ Authentication successful!")
+        return (auth_token, user_id)
+
+    except httpx.HTTPStatusError as e:
+        print(f"\n✗ Authentication failed: {e.response.status_code}", file=sys.stderr)
+        if e.response.status_code == 400:
+            print(
+                "  Invalid GitHub code or Taiga not configured for GitHub OAuth.",
+                file=sys.stderr,
+            )
+        print(f"  Response: {e.response.text}", file=sys.stderr)
+        return None
+    except httpx.HTTPError as e:
+        print(f"\n✗ Network error: {e}", file=sys.stderr)
+        return None
+    except Exception as e:
+        print(f"\n✗ Unexpected error: {e}", file=sys.stderr)
+        return None
