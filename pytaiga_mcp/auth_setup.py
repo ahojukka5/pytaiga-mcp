@@ -95,11 +95,11 @@ def interactive_login() -> None:
     print("  Examples:")
     print("    - https://api.taiga.io (for cloud)")
     print("    - http://localhost:9000 (for local)")
-    api_url = input("Taiga URL: ").strip()
+    api_url = input("Taiga URL [https://api.taiga.io]: ").strip()
 
     if not api_url:
-        print("\nError: URL is required", file=sys.stderr)
-        sys.exit(1)
+        api_url = "https://api.taiga.io"
+        print(f"Using default: {api_url}")
 
     # Get credentials
     print()
@@ -153,3 +153,64 @@ def interactive_login() -> None:
     except Exception as e:
         print(f"\n✗ Unexpected error: {e}", file=sys.stderr)
         sys.exit(1)
+
+
+def interactive_login_to_cache(host: str) -> tuple[str, int] | None:
+    """
+    Interactive login process that returns token for caching.
+
+    Args:
+        host: Taiga host URL
+
+    Returns:
+        Tuple of (auth_token, user_id) or None if failed
+    """
+    print("=" * 70)
+    print("Taiga MCP Bridge - Interactive Authentication")
+    print("=" * 70)
+    print()
+    print(f"Host: {host}")
+    print()
+
+    # Get credentials
+    username = input("Username: ").strip()
+    if not username:
+        print("\nError: Username is required", file=sys.stderr)
+        return None
+
+    password = getpass.getpass("Password: ")
+    if not password:
+        print("\nError: Password is required", file=sys.stderr)
+        return None
+
+    # Authenticate
+    print()
+    print("Authenticating with Taiga...")
+
+    try:
+        auth_data = login_and_get_token(host, username, password)
+        auth_token = auth_data.get("auth_token")
+        user_id = auth_data.get("id")
+
+        if not auth_token:
+            print("\nError: No auth token received from Taiga", file=sys.stderr)
+            return None
+
+        print("\n✓ Authentication successful!")
+        return (auth_token, user_id)
+
+    except httpx.HTTPStatusError as e:
+        print(f"\n✗ Authentication failed: {e.response.status_code}", file=sys.stderr)
+        if e.response.status_code == 400:
+            print(
+                "  Invalid credentials. Please check your username and password.", file=sys.stderr
+            )
+        else:
+            print(f"  {e.response.text}", file=sys.stderr)
+        return None
+    except httpx.HTTPError as e:
+        print(f"\n✗ Network error: {e}", file=sys.stderr)
+        return None
+    except Exception as e:
+        print(f"\n✗ Unexpected error: {e}", file=sys.stderr)
+        return None
