@@ -7,7 +7,7 @@ Stores authentication tokens in ~/.cache/pytaiga-mcp/ with proper permissions.
 import json
 import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 
 def get_cache_dir() -> Path:
@@ -32,7 +32,7 @@ def get_cache_file(host: str) -> Path:
     return cache_dir / f"{safe_host}.json"
 
 
-def save_token(host: str, token: str, user_id: Optional[int] = None) -> None:
+def save_token(host: str, token: str, user_id: int | None = None) -> None:
     """
     Save authentication token to cache.
 
@@ -54,7 +54,7 @@ def save_token(host: str, token: str, user_id: Optional[int] = None) -> None:
     cache_file.chmod(0o600)
 
 
-def load_token(host: str) -> Optional[dict]:
+def load_token(host: str) -> dict | None:
     """
     Load authentication token from cache.
 
@@ -70,10 +70,10 @@ def load_token(host: str) -> Optional[dict]:
         return None
 
     try:
-        with open(cache_file, "r") as f:
+        with open(cache_file) as f:
             data = json.load(f)
         return data
-    except (json.JSONDecodeError, IOError):
+    except (OSError, json.JSONDecodeError):
         return None
 
 
@@ -107,11 +107,11 @@ def list_cached_hosts() -> list[str]:
 
     for cache_file in cache_dir.glob("*.json"):
         try:
-            with open(cache_file, "r") as f:
+            with open(cache_file) as f:
                 data = json.load(f)
                 if "host" in data:
                     hosts.append(data["host"])
-        except (json.JSONDecodeError, IOError):
+        except (OSError, json.JSONDecodeError):
             continue
 
     return hosts
@@ -131,7 +131,7 @@ def clear_all_tokens() -> int:
         try:
             cache_file.unlink()
             count += 1
-        except IOError:
+        except OSError:
             continue
 
     return count

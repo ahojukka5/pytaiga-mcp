@@ -172,14 +172,14 @@ cat .env | grep TAIGA_AUTH_TOKEN
 
 ### Architecture Overview
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
-│                    Your Taiga Account                        │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
-│  │ Project 1│  │ Project 2│  │ Project 3│  │ Project N│   │
-│  │ JuliaFEM │  │ OpenPFC  │  │pytaiga-  │  │   ...    │   │
-│  │          │  │          │  │   mcp    │  │          │   │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
+│                    Your Taiga Account                       │
+│  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌──────────┐  │
+│  │ Project 1 │  │ Project 2 │  │ Project 3 │  │ Project N│  │
+│  │ JuliaFEM  │  │ OpenPFC   │  │pytaiga-mcp│  │   ...    │  │
+│  │           │  │           │  │           │  │          │  │
+│  └───────────┘  └───────────┘  └───────────┘  └──────────┘  │
 └─────────────────────────────────────────────────────────────┘
                             ▲
                             │ Single Authentication

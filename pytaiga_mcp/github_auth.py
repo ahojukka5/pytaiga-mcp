@@ -9,7 +9,6 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from threading import Event, Thread
-from typing import Optional
 from urllib.parse import parse_qs, urlparse
 
 import httpx
@@ -18,8 +17,8 @@ import httpx
 class OAuthCallbackHandler(BaseHTTPRequestHandler):
     """Handle OAuth callback from GitHub."""
 
-    auth_code: Optional[str] = None
-    auth_error: Optional[str] = None
+    auth_code: str | None = None
+    auth_error: str | None = None
     done_event: Event = Event()
 
     def do_GET(self):

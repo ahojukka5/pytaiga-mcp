@@ -68,7 +68,7 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     # Logout command
-    logout_parser = subparsers.add_parser("logout", help="Logout and clear cached authentication")
+    subparsers.add_parser("logout", help="Logout and clear cached authentication")
 
     # Transport options
     parser.add_argument(
@@ -313,7 +313,6 @@ def handle_login_command(args: argparse.Namespace) -> int:
     Returns:
         Exit code (0 for success, 1 for failure)
     """
-    from pathlib import Path
 
     import httpx
     from dotenv import load_dotenv
@@ -467,8 +466,8 @@ def handle_login_command(args: argparse.Namespace) -> int:
         if authenticated and auth_token:
             save_token(host, auth_token, user_id)
             print()
-            print(f"✓ Authentication cached to ~/.cache/pytaiga-mcp/")
-            print(f"✓ You can now use pytaiga-mcp without re-authenticating")
+            print("✓ Authentication cached to ~/.cache/pytaiga-mcp/")
+            print("✓ You can now use pytaiga-mcp without re-authenticating")
             return 0
 
         print("Authentication failed")
