@@ -10,21 +10,25 @@ import sys
 
 def main():
     """
-    Main entry point that routes to either login or server.
+    Main entry point that routes to either login/logout or server.
 
     This function MUST be called before importing pytaiga_mcp.server
     because that package initializes FastMCP at import time.
     """
-    from pytaiga_mcp.cli import handle_login_command, parse_args
+    from pytaiga_mcp.cli import handle_login_command, handle_logout_command, parse_args
 
-    # Parse CLI arguments FIRST to check for login command
+    # Parse CLI arguments FIRST to check for login/logout command
     args = parse_args()
 
     # Handle login command - exit early before importing server
     if args.command == "login":
         sys.exit(handle_login_command(args))
 
-    # Not login command - import and run the server
+    # Handle logout command - exit early before importing server
+    if args.command == "logout":
+        sys.exit(handle_logout_command(args))
+
+    # Not login/logout command - import and run the server
     from pytaiga_mcp.server import main as server_main
 
     server_main()
