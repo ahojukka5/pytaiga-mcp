@@ -10,6 +10,7 @@ Provides a rich CLI with options for:
 """
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -25,11 +26,15 @@ def create_parser() -> argparse.ArgumentParser:
         prog="pytaiga-mcp",
         description="Taiga MCP Bridge - Model Context Protocol server for Taiga",
         epilog="Examples:\n"
-        "  %(prog)s login                    # Interactive login to create .env\n"
-        "  %(prog)s                          # Start with stdio (default)\n"
-        "  %(prog)s --transport sse          # Start SSE server on port 8000\n"
+        "  %(prog)s login                        # Check login status or show help\n"
+        "  %(prog)s login --interactive          # Interactive username/password login\n"
+        "  %(prog)s login --github               # GitHub OAuth login\n"
+        "  %(prog)s logout                       # Logout and clear cache\n"
+        "  %(prog)s login --list-cache           # List cached tokens\n"
+        "  %(prog)s                              # Start with stdio (default)\n"
+        "  %(prog)s --transport sse              # Start SSE server on port 8000\n"
         "  %(prog)s --transport sse --port 5000  # Custom port\n"
-        "  %(prog)s --log-level DEBUG        # Debug logging to console\n",
+        "  %(prog)s --log-level DEBUG            # Debug logging to console\n",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
@@ -38,18 +43,32 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Login command
     login_parser = subparsers.add_parser(
-        "login", help="Interactive login to generate .env file with authentication token"
+        "login", help="Authenticate with Taiga (uses cache in ~/.cache/pytaiga-mcp/)"
     )
     login_parser.add_argument(
         "--force",
         action="store_true",
-        help="Overwrite existing .env file without prompting",
+        help="Force re-authentication even if already logged in",
+    )
+    login_parser.add_argument(
+        "--interactive",
+        "-i",
+        action="store_true",
+        help="Prompt for credentials interactively (username/password)",
     )
     login_parser.add_argument(
         "--github",
         action="store_true",
-        help="Use GitHub OAuth authentication instead of username/password",
+        help="Use GitHub OAuth authentication",
     )
+    login_parser.add_argument(
+        "--list-cache",
+        action="store_true",
+        help="List all cached authentication tokens",
+    )
+
+    # Logout command
+    logout_parser = subparsers.add_parser("logout", help="Logout and clear cached authentication")
 
     # Transport options
     parser.add_argument(
@@ -235,17 +254,17 @@ def parse_args(argv: list | None = None) -> argparse.Namespace:
     parser = create_parser()
     args = parser.parse_args(argv)
 
-    # Handle login command separately (no validation needed)
-    if args.command == "login":
+    # Handle login and logout commands separately (no validation needed)
+    if args.command in ("login", "logout"):
         return args
 
     validate_args(args)
     return args
 
 
-def handle_login_command(args: argparse.Namespace) -> int:
+def handle_logout_command(args: argparse.Namespace) -> int:
     """
-    Handle the login command.
+    Handle the logout command.
 
     Args:
         args: Parsed arguments
@@ -253,48 +272,210 @@ def handle_login_command(args: argparse.Namespace) -> int:
     Returns:
         Exit code (0 for success, 1 for failure)
     """
-    from pathlib import Path
+    import os
+    from dotenv import load_dotenv
+    from pytaiga_mcp.auth_cache import delete_token
 
-    # Check if .env exists
-    env_path = Path(".env")
-    if env_path.exists() and not args.force:
-        print(f"Warning: {env_path.absolute()} already exists!")
-        response = input("Overwrite? (y/N): ").strip().lower()
-        if response != "y":
-            print("Cancelled.")
-            return 0
+    load_dotenv()
+
+    # Determine host
+    host = os.environ.get("TAIGA_HOST") or os.environ.get("TAIGA_API_URL")
+    if host:
+        # Normalize to base URL without /api/v1
+        host = host.rstrip("/").replace("/api/v1", "")
+    else:
+        host = "https://api.taiga.io"
+
+    if delete_token(host):
+        print(f"✓ Logged out from {host}")
+        print("  Cache cleared.")
+        return 0
+    else:
+        print(f"Not logged in to {host}")
+        return 1
+
+
+def handle_login_command(args: argparse.Namespace) -> int:
+    """
+    Handle the login command.
+
+    Flow:
+    1. Check cache - if logged in and valid, report and exit
+    2. Try credentials from .env (token or username/password)
+    3. If --interactive, prompt for credentials
+    4. If nothing available, show help message
+
+    Args:
+        args: Parsed arguments
+
+    Returns:
+        Exit code (0 for success, 1 for failure)
+    """
+    import httpx
+    from pathlib import Path
+    from dotenv import load_dotenv
+    from pytaiga_mcp.auth_cache import (
+        load_token,
+        save_token,
+        list_cached_hosts,
+    )
+
+    # Load .env file
+    load_dotenv()
+
+    # Determine host
+    host = os.environ.get("TAIGA_HOST") or os.environ.get("TAIGA_API_URL")
+    if host:
+        # Normalize to base URL without /api/v1
+        host = host.rstrip("/").replace("/api/v1", "")
+    else:
+        host = "https://api.taiga.io"
+
+    # Handle list cached hosts
+    if hasattr(args, "list_cache") and args.list_cache:
+        hosts = list_cached_hosts()
+        if hosts:
+            print("Cached authentication tokens:")
+            for h in hosts:
+                print(f"  - {h}")
+        else:
+            print("No cached tokens found.")
+        return 0
 
     try:
-        # Use GitHub OAuth if --github flag is provided
-        if hasattr(args, "github") and args.github:
-            from pytaiga_mcp.github_auth import github_oauth_flow
+        # Step 1: Check if already logged in via cache
+        cached = load_token(host)
+        if cached and not args.force:
+            # Verify token is still valid
+            token = cached["token"]
+            try:
+                response = httpx.get(
+                    f"{host}/api/v1/users/me",
+                    headers={"Authorization": f"Bearer {token}"},
+                    timeout=10.0,
+                )
+                if response.status_code == 200:
+                    user_data = response.json()
+                    print(f"✓ Already logged in to {host}")
+                    print(f"  User: {user_data.get('username', 'unknown')}")
+                    print(f"  Full name: {user_data.get('full_name', 'N/A')}")
+                    print()
+                    print("To force re-authentication:")
+                    print("  poetry run pytaiga-mcp login --force")
+                    print()
+                    print("To logout:")
+                    print("  poetry run pytaiga-mcp logout")
+                    return 0
+            except Exception:
+                # Token invalid, will re-authenticate
+                pass
 
-            # Ask for Taiga instance URL
-            print("=" * 70)
-            print("Taiga MCP Bridge - GitHub Authentication")
-            print("=" * 70)
+        # Step 2: Try credentials from .env
+        token_from_env = os.environ.get("TAIGA_AUTH_TOKEN")
+        username = os.environ.get("TAIGA_USERNAME")
+        password = os.environ.get("TAIGA_PASSWORD")
+
+        authenticated = False
+        auth_token = None
+        user_id = None
+
+        if token_from_env and not (hasattr(args, "interactive") and args.interactive):
+            # Try token from .env
+            print(f"Attempting login to {host} with token from .env...")
+            try:
+                response = httpx.get(
+                    f"{host}/api/v1/users/me",
+                    headers={"Authorization": f"Bearer {token_from_env}"},
+                    timeout=10.0,
+                )
+                if response.status_code == 200:
+                    user_data = response.json()
+                    auth_token = token_from_env
+                    user_id = user_data.get("id")
+                    authenticated = True
+                    print(f"✓ Authenticated as {user_data.get('username')}")
+            except Exception as e:
+                print(f"Token from .env failed: {e}")
+
+        if (
+            not authenticated
+            and username
+            and password
+            and not (hasattr(args, "interactive") and args.interactive)
+        ):
+            # Try username/password from .env
+            print(f"Attempting login to {host} with credentials from .env...")
+            try:
+                response = httpx.post(
+                    f"{host}/api/v1/auth",
+                    json={"username": username, "password": password, "type": "normal"},
+                    timeout=10.0,
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    auth_token = data["auth_token"]
+                    user_id = data.get("id")
+                    authenticated = True
+                    print(f"✓ Authenticated as {username}")
+            except Exception as e:
+                print(f"Login with credentials from .env failed: {e}")
+
+        # Step 3: If --interactive or --github, prompt for credentials
+        if not authenticated and (hasattr(args, "interactive") and args.interactive):
+            from pytaiga_mcp.auth_setup import interactive_login_to_cache
+
+            result = interactive_login_to_cache(host)
+            if result:
+                auth_token, user_id = result
+                authenticated = True
+
+        if not authenticated and (hasattr(args, "github") and args.github):
+            from pytaiga_mcp.github_auth import github_oauth_to_cache
+
+            result = github_oauth_to_cache(host)
+            if result:
+                auth_token, user_id = result
+                authenticated = True
+
+        # Step 4: If still not authenticated and not interactive, show help
+        if (
+            not authenticated
+            and not (hasattr(args, "interactive") and args.interactive)
+            and not (hasattr(args, "github") and args.github)
+        ):
+            print(f"No valid credentials found for {host}")
             print()
-            print("Enter your Taiga instance URL:")
-            print("  Examples:")
-            print("    - https://api.taiga.io (for cloud)")
-            print("    - http://localhost:9000 (for local)")
-            api_url = input("Taiga URL: ").strip()
+            print("To authenticate, you have several options:")
+            print()
+            print("1. Add credentials to .env file:")
+            print("   TAIGA_HOST=https://api.taiga.io")
+            print("   TAIGA_AUTH_TOKEN=your_token_here")
+            print()
+            print("2. Use interactive authentication:")
+            print("   poetry run pytaiga-mcp login --interactive")
+            print()
+            print("3. Use GitHub OAuth:")
+            print("   poetry run pytaiga-mcp login --github")
+            print()
+            return 1
 
-            if not api_url:
-                print("\nError: URL is required", file=sys.stderr)
-                return 1
+        # Save to cache if authenticated
+        if authenticated and auth_token:
+            save_token(host, auth_token, user_id)
+            print()
+            print(f"✓ Authentication cached to ~/.cache/pytaiga-mcp/")
+            print(f"✓ You can now use pytaiga-mcp without re-authenticating")
+            return 0
 
-            github_oauth_flow(api_url, env_path)
-        else:
-            # Use traditional username/password login
-            from pytaiga_mcp.auth_setup import interactive_login
+        print("Authentication failed")
+        return 1
 
-            interactive_login()
-
-        return 0
     except KeyboardInterrupt:
         print("\n\nCancelled by user.")
         return 130
     except Exception as e:
         print(f"\nUnexpected error: {e}", file=sys.stderr)
+        import traceback
+
+        traceback.print_exc()
         return 1
