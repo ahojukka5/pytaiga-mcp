@@ -7,7 +7,7 @@ Stores authentication tokens in ~/.cache/pytaiga-mcp/ with proper permissions.
 import json
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 
 def get_cache_dir() -> Path:
@@ -43,7 +43,7 @@ def save_token(host: str, token: str, user_id: Optional[int] = None) -> None:
     """
     cache_file = get_cache_file(host)
 
-    data = {"host": host, "token": token}
+    data: dict[str, Any] = {"host": host, "token": token}
     if user_id is not None:
         data["user_id"] = user_id
 

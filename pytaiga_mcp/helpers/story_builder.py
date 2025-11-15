@@ -112,7 +112,7 @@ class UserStory:
         Returns:
             Dictionary with 'subject' and 'kwargs' for create_user_story
         """
-        kwargs = {"description": self.description}
+        kwargs: dict[str, Any] = {"description": self.description}
 
         if self.points is not None:
             # Note: Story points are set via points field, not kwargs

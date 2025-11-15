@@ -192,8 +192,12 @@ def interactive_login_to_cache(host: str) -> tuple[str, int] | None:
         auth_token = auth_data.get("auth_token")
         user_id = auth_data.get("id")
 
-        if not auth_token:
+        if not auth_token or not isinstance(auth_token, str):
             print("\nError: No auth token received from Taiga", file=sys.stderr)
+            return None
+
+        if not user_id or not isinstance(user_id, int):
+            print("\nError: No valid user ID received from Taiga", file=sys.stderr)
             return None
 
         print("\n✓ Authentication successful!")

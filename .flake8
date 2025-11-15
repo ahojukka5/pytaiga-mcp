@@ -4,6 +4,8 @@ extend-ignore = E501, F401, F841, W291, W293, E261, E302, F541
 per-file-ignores =
     __init__.py:F401
     tests/*:F401,F841
+    examples/*:E402
+    scripts/*:E128
 exclude =
     .git,
     __pycache__,

@@ -253,7 +253,7 @@ def get_github_auth_code(redirect_uri: str = "http://localhost:8765/callback") -
     if not OAuthCallbackHandler.auth_code:
         raise RuntimeError("No authorization code received")
 
-    return OAuthCallbackHandler.auth_code
+    return OAuthCallbackHandler.auth_code  # type: ignore[unreachable]
 
 
 def login_with_github(api_url: str, github_code: str) -> dict:
@@ -388,8 +388,12 @@ def github_oauth_to_cache(host: str) -> tuple[str, int] | None:
         auth_token = auth_data.get("auth_token")
         user_id = auth_data.get("id")
 
-        if not auth_token:
+        if not auth_token or not isinstance(auth_token, str):
             print("\n✗ No auth token received from Taiga", file=sys.stderr)
+            return None
+
+        if not user_id or not isinstance(user_id, int):
+            print("\n✗ No valid user ID received from Taiga", file=sys.stderr)
             return None
 
         print("\n✓ Authentication successful!")

@@ -273,7 +273,9 @@ def handle_logout_command(args: argparse.Namespace) -> int:
         Exit code (0 for success, 1 for failure)
     """
     import os
+
     from dotenv import load_dotenv
+
     from pytaiga_mcp.auth_cache import delete_token
 
     load_dotenv()
@@ -311,13 +313,15 @@ def handle_login_command(args: argparse.Namespace) -> int:
     Returns:
         Exit code (0 for success, 1 for failure)
     """
-    import httpx
     from pathlib import Path
+
+    import httpx
     from dotenv import load_dotenv
+
     from pytaiga_mcp.auth_cache import (
+        list_cached_hosts,
         load_token,
         save_token,
-        list_cached_hosts,
     )
 
     # Load .env file
