@@ -18,7 +18,7 @@ def list_milestones(session_id: str, project_id: int) -> list[dict[str, Any]]:
     logger.info(f"Executing list_milestones for project {project_id}, session {session_id[:8]}...")
     api = get_api_client(session_id)
     try:
-        milestones = api.milestones.list(project_id=project_id)
+        milestones = api.milestones.list(project=project_id)
         return milestones
     except TaigaException as e:
         logger.error(
